@@ -1,0 +1,17 @@
+﻿[
+    {
+        "RouteTableId": "rtb-0f773299ae9567b9d",
+        "Associations": [
+            "subnet-05b14e6be45ad855a",
+            "subnet-04363c8121debcc7c"
+        ],
+        "Routes": [
+            {
+                "Destination": "10.20.0.0/16",
+                "Gateway": "local",
+                "NAT": null,
+                "State": "active"
+            }
+        ]
+    }
+]

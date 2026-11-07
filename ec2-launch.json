@@ -1,0 +1,63 @@
+{
+  "ImageId": "ami-0f19324397f53458f",
+  "InstanceType": "t3.micro",
+  "MinCount": 1,
+  "MaxCount": 1,
+  "IamInstanceProfile": {
+    "Name": "ShopSphereEC2Role"
+  },
+  "NetworkInterfaces": [
+    {
+      "DeviceIndex": 0,
+      "SubnetId": "subnet-0653555a1220cba73",
+      "Groups": [
+        "sg-06e3362a81591e07f"
+      ],
+      "AssociatePublicIpAddress": true,
+      "DeleteOnTermination": true
+    }
+  ],
+  "BlockDeviceMappings": [
+    {
+      "DeviceName": "/dev/xvda",
+      "Ebs": {
+        "VolumeSize": 8,
+        "VolumeType": "gp3",
+        "Encrypted": true,
+        "DeleteOnTermination": true
+      }
+    }
+  ],
+  "MetadataOptions": {
+    "HttpEndpoint": "enabled",
+    "HttpTokens": "required"
+  },
+  "TagSpecifications": [
+    {
+      "ResourceType": "instance",
+      "Tags": [
+        {
+          "Key": "Name",
+          "Value": "ShopSphere-Web-01"
+        },
+        {
+          "Key": "Project",
+          "Value": "ShopSphere"
+        },
+        {
+          "Key": "Environment",
+          "Value": "Lab"
+        }
+      ]
+    },
+    {
+      "ResourceType": "volume",
+      "Tags": [
+        {
+          "Key": "Project",
+          "Value": "ShopSphere"
+        }
+      ]
+    }
+  ]
+}

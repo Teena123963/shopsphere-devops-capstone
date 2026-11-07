@@ -1,0 +1,37 @@
+---
+- name: Configure ShopSphere Web Server
+  hosts: shopsphere
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Ensure NGINX is installed
+      ansible.builtin.dnf:
+        name: nginx
+        state: present
+
+    - name: Ensure NGINX is running and enabled
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: Deploy ShopSphere homepage
+      ansible.builtin.copy:
+        dest: /usr/share/nginx/html/index.html
+        content: |
+          Welcome to ShopSphere
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Verify ShopSphere homepage
+      ansible.builtin.uri:
+        url: http://localhost
+        status_code: 200
+        return_content: true
+      register: shopsphere_http
+
+    - name: Display HTTP status
+      ansible.builtin.debug:
+        var: shopsphere_http.status

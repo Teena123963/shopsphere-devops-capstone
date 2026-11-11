@@ -1,11 +1,26 @@
 
+
 import os
 from flask import Flask, jsonify, request
 import psycopg
 
 app = Flask(__name__)
 
-DATABASE_URL = os.environ["DATABASE_URL"]
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+
+def get_db_connection():
+    if DATABASE_URL:
+        return psycopg.connect(DATABASE_URL)
+
+    return psycopg.connect(
+        host=os.environ["DB_HOST"],
+        dbname=os.environ["DB_NAME"],
+        user=os.environ["DB_USER"],
+        password=os.environ["DB_PASSWORD"],
+        port=int(os.environ.get("DB_PORT", "5432")),
+        sslmode="require"
+    )
 
 
 @app.get("/health")
@@ -37,7 +52,7 @@ def create_order():
     if product_id < 1 or quantity < 1:
         return jsonify(error="Values must be positive"), 400
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """

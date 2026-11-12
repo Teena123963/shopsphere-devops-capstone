@@ -1,12 +1,4 @@
 
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 6.0"
-    }
-  }
-}
 
 provider "aws" {
   region = "ap-south-1"
@@ -107,6 +99,8 @@ resource "aws_subnet" "db_b" {
     Tier    = "Private-DB"
   }
 }
+
+# Internet Gateway
 resource "aws_internet_gateway" "shopsphere_igw" {
   vpc_id = aws_vpc.shopsphere_vpc.id
 
@@ -115,6 +109,8 @@ resource "aws_internet_gateway" "shopsphere_igw" {
     Project = "ShopSphere"
   }
 }
+
+# Public Route Table
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.shopsphere_vpc.id
 
@@ -123,11 +119,13 @@ resource "aws_route_table" "public_rt" {
     Project = "ShopSphere"
   }
 }
+
 resource "aws_route" "public_internet_route" {
   route_table_id         = aws_route_table.public_rt.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.shopsphere_igw.id
 }
+
 resource "aws_route_table_association" "public_a_association" {
   subnet_id      = aws_subnet.public_a.id
   route_table_id = aws_route_table.public_rt.id
@@ -137,6 +135,8 @@ resource "aws_route_table_association" "public_b_association" {
   subnet_id      = aws_subnet.public_b.id
   route_table_id = aws_route_table.public_rt.id
 }
+
+# Private Application Route Table
 resource "aws_route_table" "private_app_rt" {
   vpc_id = aws_vpc.shopsphere_vpc.id
 
@@ -145,6 +145,7 @@ resource "aws_route_table" "private_app_rt" {
     Project = "ShopSphere"
   }
 }
+
 resource "aws_route_table_association" "app_a_association" {
   subnet_id      = aws_subnet.app_a.id
   route_table_id = aws_route_table.private_app_rt.id
@@ -154,6 +155,8 @@ resource "aws_route_table_association" "app_b_association" {
   subnet_id      = aws_subnet.app_b.id
   route_table_id = aws_route_table.private_app_rt.id
 }
+
+# Private Database Route Table
 resource "aws_route_table" "private_db_rt" {
   vpc_id = aws_vpc.shopsphere_vpc.id
 
@@ -162,6 +165,7 @@ resource "aws_route_table" "private_db_rt" {
     Project = "ShopSphere"
   }
 }
+
 resource "aws_route_table_association" "db_a_association" {
   subnet_id      = aws_subnet.db_a.id
   route_table_id = aws_route_table.private_db_rt.id

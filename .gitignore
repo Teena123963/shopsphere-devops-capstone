@@ -14,3 +14,8 @@ __pycache__/
 *.key
 
 secrets/
+
+# Terraform plan and local variables
+tfplan
+*.tfplan
+terraform.tfvars

@@ -1,0 +1,68 @@
+
+{
+  "family": "shopsphere-api",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::058416978799:role/shopsphere-ecs-task-execution-role",
+  "containerDefinitions": [
+    {
+      "name": "shopsphere-api",
+      "image": "058416978799.dkr.ecr.ap-south-1.amazonaws.com/shopsphere-api:latest",
+      "cpu": 0,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 5000,
+          "hostPort": 5000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "DB_PORT",
+          "value": "5432"
+        },
+        {
+          "name": "DB_HOST",
+          "value": "shopsphere-postgres.cnwe8os62gge.ap-south-1.rds.amazonaws.com"
+        },
+        {
+          "name": "DB_NAME",
+          "value": "shopsphere"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "DB_USER",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:058416978799:secret:rds!db-e74906ae-664e-4f19-911d-242323107d6a-kliSDu:username::"
+        },
+        {
+          "name": "DB_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:058416978799:secret:rds!db-e74906ae-664e-4f19-911d-242323107d6a-kliSDu:password::"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/shopsphere-api",
+          "awslogs-region": "ap-south-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=3)\""
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 30
+      }
+    }
+  ]
+}

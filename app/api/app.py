@@ -1,16 +1,65 @@
 
 
 
+
 import os
-from flask import Flask, jsonify, request
+from time import time
+
+from flask import Flask, jsonify, request, Response
+from prometheus_client import (
+    Counter,
+    Histogram,
+    generate_latest,
+    CONTENT_TYPE_LATEST
+)
 
 app = Flask(__name__)
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
+# Prometheus metrics
+REQUEST_COUNT = Counter(
+    "shopsphere_http_requests_total",
+    "Total HTTP requests",
+    ["method", "endpoint", "status"]
+)
+
+REQUEST_LATENCY = Histogram(
+    "shopsphere_http_request_duration_seconds",
+    "HTTP request duration"
+)
+
+
+@app.before_request
+def start_timer():
+    request.start_time = time()
+
+
+@app.after_request
+def record_metrics(response):
+    duration = time() - getattr(request, "start_time", time())
+
+    REQUEST_COUNT.labels(
+        request.method,
+        request.endpoint or "unknown",
+        str(response.status_code)
+    ).inc()
+
+    REQUEST_LATENCY.observe(duration)
+
+    return response
+
+
+# Prometheus metrics endpoint
+@app.route("/metrics", methods=["GET"])
+def metrics():
+    return Response(
+        generate_latest(),
+        mimetype=CONTENT_TYPE_LATEST
+    )
+
 
 def get_db_connection():
-    # Load database driver only when database is needed
     import psycopg
 
     if DATABASE_URL:

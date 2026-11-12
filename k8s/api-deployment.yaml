@@ -8,7 +8,7 @@ metadata:
   namespace: shopsphere
 
 spec:
-  replicas: 2
+  replicas: 3
 
   selector:
     matchLabels:

@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopSphere - Online Shopping</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        }
+        header {
+            background: #172554;
+            color: white;
+            padding: 22px 8%;
+        }
+        header h1 { margin: 0; }
+        header p { margin-bottom: 0; }
+        main { padding: 35px 8%; }
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 10px;
+            width: 260px;
+            box-shadow: 0 2px 10px #00000012;
+        }
+        .card h3 { color: #172554; }
+        .price { font-size: 21px; font-weight: bold; }
+        button {
+            background: #2563eb;
+            color: white;
+            border: 0;
+            padding: 11px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover { background: #1d4ed8; }
+        input {
+            width: 65px;
+            padding: 9px;
+            margin: 10px 0;
+        }
+        #message {
+            margin-top: 20px;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+        }
+        footer {
+            margin-top: 40px;
+            padding: 20px;
+            text-align: center;
+            background: #172554;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>ShopSphere</h1>
+    <p>Your Online Shopping Destination</p>
+</header>
+
+<main>
+    <h2>Our Products</h2>
+    <div class="products" id="products">
+        Loading products...
+    </div>
+
+    <h2>Place Your Order</h2>
+    <label for="product">Select Product:</label>
+    <select id="product">
+        <option value="1">Laptop - ₹55,000</option>
+        <option value="2">Mobile - ₹25,000</option>
+    </select>
+
+    <br><br>
+
+    <label for="quantity">Quantity:</label>
+    <input type="number" id="quantity" value="1" min="1">
+
+    <br>
+    <button onclick="placeOrder()">Place Order</button>
+
+    <div id="message">Connecting to ShopSphere API...</div>
+</main>
+
+<footer>
+    <p>ShopSphere DevOps Capstone Project</p>
+</footer>
+
+<script>
+async function loadProducts() {
+    const container = document.getElementById("products");
+
+    try {
+        const response = await fetch("/products");
+        if (!response.ok) throw new Error("API request failed");
+
+        const products = await response.json();
+        container.innerHTML = "";
+
+        products.forEach(product => {
+            container.innerHTML += `
+                <div class="card">
+                    <h3>${product.name}</h3>
+                    <p class="price">₹${product.price.toLocaleString("en-IN")}</p>
+                    <p>Product ID: ${product.id}</p>
+                </div>
+            `;
+        });
+    } catch (error) {
+        container.innerHTML = "<p>Products could not be loaded. Please try again later.</p>";
+    }
+}
+
+async function placeOrder() {
+    const productId = Number(document.getElementById("product").value);
+    const quantity = Number(document.getElementById("quantity").value);
+    const message = document.getElementById("message");
+
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+        message.textContent = "Please enter a valid quantity.";
+        return;
+    }
+
+    try {
+        const response = await fetch("/orders", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: quantity
+            })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) throw new Error(result.error || "Order failed");
+
+        message.textContent =
+            "Order created successfully! Order ID: " + result.order_id;
+    } catch (error) {
+        message.textContent = "Order could not be placed: " + error.message;
+    }
+}
+
+loadProducts();
+</script>
+
+</body>
+</html>

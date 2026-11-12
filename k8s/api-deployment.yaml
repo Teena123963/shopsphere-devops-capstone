@@ -1,0 +1,57 @@
+
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: shopsphere-api
+  namespace: shopsphere
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: shopsphere-api
+
+  template:
+    metadata:
+      labels:
+        app: shopsphere-api
+
+    spec:
+      imagePullSecrets:
+        - name: ecr-registry-secret
+
+      containers:
+        - name: api
+          image: 058416978799.dkr.ecr.ap-south-1.amazonaws.com/shopsphere-api:09b6d297aa0b3a9259a786a3842fd7e78e4f118e
+
+          ports:
+            - containerPort: 5000
+
+          envFrom:
+            - configMapRef:
+                name: shopsphere-config
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

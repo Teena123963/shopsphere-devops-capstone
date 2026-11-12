@@ -25,7 +25,7 @@ spec:
 
       containers:
         - name: api
-          image: 058416978799.dkr.ecr.ap-south-1.amazonaws.com/shopsphere-api:09b6d297aa0b3a9259a786a3842fd7e78e4f118e
+          image: 058416978799.dkr.ecr.ap-south-1.amazonaws.com/shopsphere-api:metrics-v1
 
           ports:
             - containerPort: 5000

@@ -1,5 +1,6 @@
 
 
+
 apiVersion: apps/v1
 kind: Deployment
 
@@ -33,6 +34,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: shopsphere-config
+            - secretRef:
+                name: shopsphere-db-secret
 
           readinessProbe:
             httpGet:
